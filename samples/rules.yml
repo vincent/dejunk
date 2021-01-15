@@ -1,0 +1,19 @@
+- name: Music                             # The rule name. This will be used as the first output directory 
+  match: "ext(:audio)"                    # Matching rules. :audio will match all audio files
+  type: Music                             # Internal category
+  store: ":artist/:album (:year)/:title"  # The final storage path with all dynamic parts replaced
+  with: [dummy]                           # Additional features.
+                                          #     dummy: try to guess some tag values from file name
+                                          #      tags: writes found tags to the moved file
+
+- name: Movies
+  match: "ext(:video)not(:episode)"
+  type: Movie
+  store: ":title (:year)/:title"
+  with: [dummy]
+
+- name: TV Shows
+  match: "ext(:video)is(:episode)"
+  type: TVShow
+  store: ":title/Season :season/:episode - :title"
+  with: [dummy]
