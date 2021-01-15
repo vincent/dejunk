@@ -3,12 +3,22 @@
 Dejunk is a file sorter, to arrange movies, TV shows, and music files in a nice structure.
 
 ```shell
-dejunk --out /library --in /my-music --in /my-movies
+$ ls /downloads
+├ u2
+│ ├ sunday_bloody_sunday.flac
+│ └ new_year's_day.wav
+├ TheCurrent_war_2020.mkv
+├ dirk-gently-s1e03.avi
+├ man_in the_high_castle-s2e01.avi
+└ back.to.the.future_1990.mp4
+
+
+$ dejunk --in /downloads --out /library
 ├ Movies
 │ ├ The Current War (2020)
 │ │ └ The Current War.mkv
 │ └ Back To The Future (1990)
-│   └ Back To Th Future.mp4
+│   └ Back To The Future.mp4
 ├ Music
 │ ├ U2
 │ │ └ War (1983)
@@ -30,21 +40,11 @@ dejunk --out /library --in /my-music --in /my-movies
 Sorting rules are simply described by YAML files
 
 ```yaml
-- name: Music
-  match: "ext(:audio)"
-  type: Music
-  store: ":artist/:album (:year)/:title"
-  with: [dummy, tags, artwork]
-
-- name: Movies
-  match: "ext(:video)not(:episode)"
-  type: Movie
-  store: ":title (:year)/:title"
-  with: [dummy, tags, artwork]
-
-- name: TV Shows
-  match: "ext(:video)is(:episode)"
-  type: TVShow
-  store: ":title/Season :season/:episode - :title"
-  with: [dummy, tags, artwork]
+- name: Music                             # The rule name. This will be used as the first output directory 
+  match: "ext(:audio)"                    # Matching rules. :audio will match all audio files
+  type: Music                             # Internal category
+  store: ":artist/:album (:year)/:title"  # The final storage path with all dynamic parts replaced
+  with: [dummy]                           # Additional features.
+                                          #     dummy: try to guess some tag values from file name
+                                          #      tags: writes found tags to the moved file
 ```
