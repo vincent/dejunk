@@ -26,6 +26,10 @@ type Rule struct {
 type Reader interface {
 }
 
+func (rule Rule) isValid() bool {
+	return rule.Match != "" && rule.Name != "" && rule.Store != "" && rule.Type != ""
+}
+
 // ReadRules loads rules from the given file
 func ReadRules(filename string) ([]Rule, error) {
 	extension := filepath.Ext(filename)
@@ -46,18 +50,31 @@ func ReadRules(filename string) ([]Rule, error) {
 }
 
 func loadFromYamlFile(contents []byte) ([]Rule, error) {
-	rules := []Rule{}
+	rules, returned := []Rule{}, []Rule{}
 
 	err := yaml.Unmarshal(contents, &rules)
 	if err != nil {
 		return nil, fmt.Errorf("error while reading rules: %s", err)
 	}
 
-	for i := range rules {
-		rules[i].ParseMatchers()
-		log.Info(fmt.Sprintf("%s\n  match: %s\n  type: %s\n  store: %s",
-			rules[i].Name, rules[i].Match, rules[i].Type, rules[i].Store))
+	for i, rule := range rules {
+		if rule.isValid() {
+			err = rules[i].ParseMatchers()
+			if err == nil {
+				returned = append(returned, rules[i])
+				log.Info(fmt.Sprintf("%s\n  match: %s\n  type: %s\n  store: %s",
+					rules[i].Name, rules[i].Match, rules[i].Type, rules[i].Store))
+			} else {
+				log.Warn(fmt.Sprintf("failed to parse matchers of rule %d:%s", i, rule.Name))
+			}
+		} else {
+			log.Warn(fmt.Sprintf("rule %d is invalid", i))
+		}
 	}
 
-	return rules, nil
+	if len(returned) == 0 {
+		return nil, fmt.Errorf("no rules found")
+	}
+
+	return returned, nil
 }

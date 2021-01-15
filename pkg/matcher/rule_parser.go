@@ -27,7 +27,7 @@ func (rule *Rule) ParseMatchers() error {
 	return nil
 }
 
-// MatchItem parse the given rule
+// MatchItem returns true if all rule's tests against the given item are truthy
 func (rule *Rule) MatchItem(item *ScrapItem) bool {
 	for _, test := range rule.Tests {
 		if !test(item) {

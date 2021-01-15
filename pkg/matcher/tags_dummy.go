@@ -12,7 +12,7 @@ import (
 type DummyTagger struct{}
 
 var reSeasonEpisode = regexp.MustCompile(`([Ss]?)(\d{1,2})([xXeE\.\-])(\d{1,2})`)
-var reYear = regexp.MustCompile(`[^\d](\d{4})[^\d|$]`)
+var reYear = regexp.MustCompile(`[^\d](\d{4})([^\d]|$)`)
 var reCleanJunk = regexp.MustCompile(`[-'~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/]`)
 var reCleanSpaces = regexp.MustCompile(`\s+`)
 
@@ -23,7 +23,7 @@ func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 	basename := filepath.Base(item.Filename)
 	extension := filepath.Ext(basename)
 	title := basename[0 : len(basename)-len(extension)]
-	var setag *string
+	var setag string
 	var ok bool
 
 	// Find season & episode from filename
@@ -38,10 +38,10 @@ func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 
 	// Find season & episode from filename
 	if item.Rule.Type == TVShow {
-		ok, setag = fillSeasonEpisodeTagsFromName(basename, tags)
+		setag, ok = fillSeasonEpisodeTagsFromName(basename, tags)
 		if !ok {
 			// Find season & episode from parent name
-			_, setag = fillSeasonEpisodeTagsFromName(dirname, tags)
+			setag, _ = fillSeasonEpisodeTagsFromName(dirname, tags)
 		}
 	}
 
@@ -58,7 +58,7 @@ func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 	// TODO: Find title by removing junk & year from filename
 	_, ok = tags["episode"]
 	if ok {
-		title = strings.ReplaceAll(title, *setag, "")
+		title = strings.ReplaceAll(title, setag, "")
 	}
 	title = strings.ReplaceAll(title, tags["year"], " ")
 	title = reCleanJunk.ReplaceAllString(title, " ")
@@ -71,19 +71,19 @@ func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 	return &tags
 }
 
-func fillSeasonEpisodeTagsFromName(name string, tags Tags) (bool, *string) {
+func fillSeasonEpisodeTagsFromName(name string, tags Tags) (string, bool) {
 	res := reSeasonEpisode.FindStringSubmatch(name)
 	if len(res) == 5 {
 		tags["season"] = fmt.Sprintf("%s", res[2])
 		tags["episode"] = fmt.Sprintf("%02s", res[4])
-		return true, &res[0]
+		return res[0], true
 	}
-	return false, nil
+	return "", false
 }
 
 func fillYearTagFromName(name string, tags Tags) bool {
 	res := reYear.FindStringSubmatch(name)
-	if len(res) == 2 {
+	if len(res) == 3 {
 		tags["year"] = fmt.Sprintf("%s", res[1])
 		return true
 	}
