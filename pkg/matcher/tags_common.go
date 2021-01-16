@@ -15,19 +15,19 @@ type CommonTagger struct{}
 // For return id3 tags for the given item
 func (tagger *CommonTagger) For(item *ScrapItem) *Tags {
 	tags := *(item.Tags)
-	extension := filepath.Ext(item.Filename)
+	extension := filepath.Ext(item.SourcePath)
 	var v string
 
 	tags["extension"] = extension
 
-	handle, err := os.Open(item.Filename)
+	handle, err := os.Open(item.SourcePath)
 	if err != nil {
-		log.Println("cannot open", item.Filename)
+		log.Println("cannot open", item.SourcePath)
 		return &tags
 	}
 	id3Tags, err := gotags.ReadFrom(handle)
 	if err != nil {
-		log.Println("cannot parse tags from", item.Filename)
+		log.Println("cannot parse tags from", item.SourcePath)
 		return &tags
 	}
 

@@ -1,16 +1,30 @@
 package matcher
 
+import "path/filepath"
+
 // ScrapItem is an item to be scrapped
 type ScrapItem struct {
-	Filename string
-	Rule     *Rule
-	Tags     *Tags
+	SourcePath string
+	StorePath  string
+	Rule       *Rule
+	Tags       *Tags
 }
 
 // NewScrapItem producce a new ScrapItem
 func NewScrapItem(filename string) *ScrapItem {
 	return &ScrapItem{
-		Filename: filename,
-		Rule:     nil,
+		SourcePath: filename,
+		Rule:       nil,
 	}
+}
+
+// EvaluateStorePath set the StorePath and return true if all tags has been used
+func (item *ScrapItem) EvaluateStorePath() bool {
+	// Abort if we could not use all mandatory tags
+	path, ok := TagsToPath(item.Rule.Store, *item.Tags)
+	if ok {
+		item.StorePath = filepath.Join(item.Rule.Name, path+(*item.Tags)["extension"])
+		return true
+	}
+	return false
 }

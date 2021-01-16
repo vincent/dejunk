@@ -60,7 +60,7 @@ func Test_testFromExpression(t *testing.T) {
 			name: "Should match an item that looks like an episode, using is()",
 			args: args{
 				p:    &pattern{Function: "is", Params: []string{":episode"}},
-				item: &ScrapItem{Filename: "an episode s1e01.avi"},
+				item: &ScrapItem{SourcePath: "an episode s1e01.avi"},
 			},
 			want: true,
 		},
@@ -68,7 +68,7 @@ func Test_testFromExpression(t *testing.T) {
 			name: "Should not match an item that does not looks like an episode, using is()",
 			args: args{
 				p:    &pattern{Function: "is", Params: []string{":episode"}},
-				item: &ScrapItem{Filename: "an episode 01.avi"},
+				item: &ScrapItem{SourcePath: "an episode 01.avi"},
 			},
 			want: false,
 		},
@@ -76,7 +76,7 @@ func Test_testFromExpression(t *testing.T) {
 			name: "Should not match an item that looks like an episode, using not()",
 			args: args{
 				p:    &pattern{Function: "not", Params: []string{":episode"}},
-				item: &ScrapItem{Filename: "an episode s1e01.avi"},
+				item: &ScrapItem{SourcePath: "an episode s1e01.avi"},
 			},
 			want: false,
 		},

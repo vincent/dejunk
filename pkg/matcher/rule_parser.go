@@ -43,19 +43,19 @@ func testFromExpression(p *pattern) RuleTest {
 		params := replaceREPlaceholders(p.Params, true)
 		re := regexp.MustCompile("(" + strings.Join(params, "|") + ")$")
 		return func(item *ScrapItem) bool {
-			return re.Match([]byte(item.Filename))
+			return re.Match([]byte(item.SourcePath))
 		}
 	case "is":
 		params := replaceREPlaceholders(p.Params, true)
 		re := regexp.MustCompile("(" + strings.Join(params, "|") + ")")
 		return func(item *ScrapItem) bool {
-			return re.Match([]byte(item.Filename))
+			return re.Match([]byte(item.SourcePath))
 		}
 	case "not":
 		params := replaceREPlaceholders(p.Params, true)
 		re := regexp.MustCompile("(" + strings.Join(params, "|") + ")")
 		return func(item *ScrapItem) bool {
-			return !re.Match([]byte(item.Filename))
+			return !re.Match([]byte(item.SourcePath))
 		}
 	default:
 		return func(item *ScrapItem) bool {

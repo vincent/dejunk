@@ -20,7 +20,7 @@ func NewStore() Store {
 }
 
 // Write a new item in store
-func (store *Store) Write(item string) {
+func (store *Store) Write(item string) bool {
 	store.Count++
 
 	parts := strings.Split(item, string(os.PathSeparator))
@@ -40,5 +40,10 @@ func (store *Store) Write(item string) {
 		dest = found
 	}
 
+	if _, ok := dest[file]; ok {
+		return false
+	}
+
 	dest[file] = nil
+	return true
 }

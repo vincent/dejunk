@@ -19,8 +19,8 @@ var reCleanSpaces = regexp.MustCompile(`\s+`)
 // For return dummy tags for the given item
 func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 	tags := *item.Tags
-	dirname := filepath.Dir(item.Filename)
-	basename := filepath.Base(item.Filename)
+	dirname := filepath.Dir(item.SourcePath)
+	basename := filepath.Base(item.SourcePath)
 	extension := filepath.Ext(basename)
 	title := basename[0 : len(basename)-len(extension)]
 	var setag string

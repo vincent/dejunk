@@ -1,8 +1,6 @@
 package matcher
 
 import (
-	"path/filepath"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/vincent/godejunk/pkg/writer"
 )
@@ -26,7 +24,7 @@ func NewScrapperPipe(store *writer.Store) *Pipe {
 	go func() {
 		defer close(pipe.Done)
 		for item := range pipe.Items {
-			log.Println("scrapping", item.Filename)
+			log.Println("scrapping", item.SourcePath)
 
 			// Initialize empty tags
 			item.Tags = &Tags{}
@@ -40,11 +38,11 @@ func NewScrapperPipe(store *writer.Store) *Pipe {
 			item.Tags = common.For(item)
 
 			// Abort if we could not use all mandatory tags
-			path, ok := TagsToPath(item.Rule.Store, *item.Tags)
+			ok := item.EvaluateStorePath()
 			if ok {
-				store.Write(filepath.Join(item.Rule.Name, path+(*item.Tags)["extension"]))
+				store.Write(item.StorePath)
 			} else {
-				log.Println("cannot interpolate all tags for", item.Filename)
+				log.Println("cannot interpolate all tags for", item.SourcePath)
 			}
 		}
 	}()
