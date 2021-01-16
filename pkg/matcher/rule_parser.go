@@ -27,16 +27,6 @@ func (rule *Rule) ParseMatchers() error {
 	return nil
 }
 
-// MatchItem returns true if all rule's tests against the given item are truthy
-func (rule *Rule) MatchItem(item *ScrapItem) bool {
-	for _, test := range rule.Tests {
-		if !test(item) {
-			return false
-		}
-	}
-	return true
-}
-
 func testFromExpression(p *pattern) RuleTest {
 	switch p.Function {
 	case "ext":
@@ -69,7 +59,7 @@ func replaceREPlaceholders(terms []string, removeOthers bool) []string {
 	for _, term := range terms {
 		switch term {
 		case ":episode":
-			newTerms = append(newTerms, `([Ss]?)(\d{1,2})([xXeE\.\-])(\d{1,2})`)
+			newTerms = append(newTerms, SeasonEpisode)
 		case ":audio":
 			newTerms = append(newTerms, "("+strings.Join(AudioFileExts, "|")+")")
 		case ":video":

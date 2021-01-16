@@ -1,5 +1,7 @@
 package matcher
 
+import "regexp"
+
 // ItemType holds
 type ItemType string
 
@@ -13,6 +15,21 @@ const (
 	// Other ItemType
 	Other = "Other"
 )
+
+// SeasonEpisode is RESeasonEpisode regex string
+var SeasonEpisode = `([Ss]?)(\d{1,2})([xXeE\.\-])(\d{1,6})`
+
+// RESeasonEpisode match SxEy
+var RESeasonEpisode = regexp.MustCompile(`([Ss]?)(\d{1,2})([xXeE\.\-])(\d{1,6})`)
+
+// REYear match YYYY
+var REYear = regexp.MustCompile(`[^\d](\d{4})([^\d]|$)`)
+
+// RECleanJunk match non alpha chars
+var RECleanJunk = regexp.MustCompile(`[-'~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/]`)
+
+// RECleanSpaces match multispaces
+var RECleanSpaces = regexp.MustCompile(`\s+`)
 
 // AudioFileExts holds all known audio file formats
 var AudioFileExts = []string{

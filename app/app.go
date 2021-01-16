@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/vincent/godejunk/pkg/config"
 	"github.com/vincent/godejunk/pkg/matcher"
+	"github.com/vincent/godejunk/pkg/rollback"
 	"github.com/vincent/godejunk/pkg/walker"
 	"github.com/vincent/godejunk/pkg/writer"
 )
@@ -27,18 +28,21 @@ func Run() error {
 	output := writer.NewStore()
 
 	m := matcher.NewMatcher(cfg.RulesFile)
+	r := rollback.NewRollbackFile(cfg.RollbackFile, cfg.Output)
 
 	// Process each input directory
 	for _, dir := range cfg.Inputs {
 		walk := walker.NewWalker(&m)
 
 		log.Info("processing directory:", dir)
-		pipe := matcher.NewScrapperPipe(&output)
+		pipe := NewScrapperPipe(output, r)
 
 		walk.WalkDirectory(dir, pipe)
 
 		<-pipe.Done
 	}
+
+	r.Close()
 
 	// Show a result summary
 	output.Tree.Fprint(os.Stdout, false, "")

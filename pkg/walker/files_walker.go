@@ -4,11 +4,12 @@ import (
 	"github.com/karrick/godirwalk"
 	log "github.com/sirupsen/logrus"
 	"github.com/vincent/godejunk/pkg/matcher"
+	"github.com/vincent/godejunk/pkg/pipe"
 )
 
 // Walker blah blah
 type Walker interface {
-	WalkDirectory(osDirname string, pipe *matcher.Pipe) error
+	WalkDirectory(osDirname string, pipe *pipe.Pipe) error
 }
 
 // FilesWalker blah blah
@@ -24,7 +25,7 @@ func NewWalker(matcher *matcher.Matcher) Walker {
 }
 
 // WalkDirectory scans files to dejunk
-func (walker *FilesWalker) WalkDirectory(osDirname string, pipe *matcher.Pipe) error {
+func (walker *FilesWalker) WalkDirectory(osDirname string, pipe *pipe.Pipe) error {
 	defer close(pipe.Items)
 	return godirwalk.Walk(osDirname, &godirwalk.Options{
 		Unsorted: true,

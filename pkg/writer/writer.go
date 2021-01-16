@@ -12,8 +12,8 @@ type Store struct {
 }
 
 // NewStore returns a new writable store
-func NewStore() Store {
-	return Store{
+func NewStore() *Store {
+	return &Store{
 		Count: 0,
 		Tree:  Tree{},
 	}

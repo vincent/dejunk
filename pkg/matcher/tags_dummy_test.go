@@ -80,6 +80,12 @@ func Test_fillSeasonEpisodeTagsFromName(t *testing.T) {
 			ok:     true,
 		},
 		{
+			name:   "Fill SeasonEpisode from a long matching string",
+			args:   args{name: "A string with S01E012424", tags: Tags{}},
+			result: "S01E012424",
+			ok:     true,
+		},
+		{
 			name:   "Fill SeasonEpisode from a matching string",
 			args:   args{name: "A string with 1x04", tags: Tags{}},
 			result: "1x04",

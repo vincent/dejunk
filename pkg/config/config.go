@@ -13,12 +13,13 @@ import (
 
 // Config are command-line options that are provided by the user.
 type Config struct {
-	LogLevel  string   `short:"v" long:"level"   description:"Log level (none, error, info, debug)"`
-	Log       string   `short:"l" long:"log"     description:"Log output file"`
-	DryRun    bool     `short:"d" long:"dryrun"  description:"Print tasks to be executed without actually executing any tasks"`
-	Inputs    []string `short:"i" long:"in"      description:"Directories to scan" required:"true"`
-	Output    string   `short:"o" long:"out"     description:"Directories to write files" required:"true"`
-	RulesFile string   `short:"r" long:"rules"   description:"Rules file" default:"./samples/rules.yml"`
+	LogLevel     string   `short:"v" long:"level"   description:"Log level (none, error, info, debug)"`
+	Log          string   `short:"l" long:"log"     description:"Log output file"`
+	DryRun       bool     `short:"d" long:"dryrun"  description:"Print tasks to be executed without actually executing any tasks"`
+	Inputs       []string `short:"i" long:"in"      description:"Directories to scan" required:"true"`
+	Output       string   `short:"o" long:"out"     description:"Directoriy to write files" required:"true"`
+	RulesFile    string   `short:"r" long:"rules"   description:"Rules file" default:"./samples/rules.yml"`
+	RollbackFile string   `short:"b" long:"rollback"   description:"Rollback file"`
 
 	// Matching rules
 	Rules []matcher.Rule

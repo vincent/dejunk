@@ -4,17 +4,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
 
 // DummyTagger is a dummy tagger
 type DummyTagger struct{}
-
-var reSeasonEpisode = regexp.MustCompile(`([Ss]?)(\d{1,2})([xXeE\.\-])(\d{1,2})`)
-var reYear = regexp.MustCompile(`[^\d](\d{4})([^\d]|$)`)
-var reCleanJunk = regexp.MustCompile(`[-'~!@#$%^&*()_|+=?;:'",.<>\{\}\[\]\\\/]`)
-var reCleanSpaces = regexp.MustCompile(`\s+`)
 
 // For return dummy tags for the given item
 func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
@@ -61,8 +55,8 @@ func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 		title = strings.ReplaceAll(title, setag, "")
 	}
 	title = strings.ReplaceAll(title, tags["year"], " ")
-	title = reCleanJunk.ReplaceAllString(title, " ")
-	title = reCleanSpaces.ReplaceAllString(title, " ")
+	title = RECleanJunk.ReplaceAllString(title, " ")
+	title = RECleanSpaces.ReplaceAllString(title, " ")
 	title = strings.TrimSpace(strings.Title(strings.ToLower(title)))
 
 	tags["title"] = title
@@ -72,7 +66,7 @@ func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 }
 
 func fillSeasonEpisodeTagsFromName(name string, tags Tags) (string, bool) {
-	res := reSeasonEpisode.FindStringSubmatch(name)
+	res := RESeasonEpisode.FindStringSubmatch(name)
 	if len(res) == 5 {
 		tags["season"] = fmt.Sprintf("%s", res[2])
 		tags["episode"] = fmt.Sprintf("%02s", res[4])
@@ -82,7 +76,7 @@ func fillSeasonEpisodeTagsFromName(name string, tags Tags) (string, bool) {
 }
 
 func fillYearTagFromName(name string, tags Tags) bool {
-	res := reYear.FindStringSubmatch(name)
+	res := REYear.FindStringSubmatch(name)
 	if len(res) == 3 {
 		tags["year"] = fmt.Sprintf("%s", res[1])
 		return true

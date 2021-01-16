@@ -1,33 +1,30 @@
-package matcher
+package app
 
 import (
 	log "github.com/sirupsen/logrus"
+	"github.com/vincent/godejunk/pkg/matcher"
+	"github.com/vincent/godejunk/pkg/pipe"
+	"github.com/vincent/godejunk/pkg/rollback"
 	"github.com/vincent/godejunk/pkg/writer"
 )
 
-// Pipe holds a pipe
-type Pipe struct {
-	Items chan *ScrapItem
-	Done  chan int
-}
-
-var dummy = DummyTagger{}
-var common = CommonTagger{}
+var dummy = matcher.DummyTagger{}
+var common = matcher.CommonTagger{}
 
 // NewScrapperPipe provides a scrapper pipe to fill in
-func NewScrapperPipe(store *writer.Store) *Pipe {
-	pipe := &Pipe{
-		Items: make(chan *ScrapItem, 2),
+func NewScrapperPipe(store *writer.Store, rollback *rollback.RollbackFile) *pipe.Pipe {
+	pipeline := &pipe.Pipe{
+		Items: make(chan *matcher.ScrapItem, 2),
 		Done:  make(chan int),
 	}
 
 	go func() {
-		defer close(pipe.Done)
-		for item := range pipe.Items {
+		defer close(pipeline.Done)
+		for item := range pipeline.Items {
 			log.Println("scrapping", item.SourcePath)
 
 			// Initialize empty tags
-			item.Tags = &Tags{}
+			item.Tags = &matcher.Tags{}
 
 			// Is configured, fill with dummy tags
 			if contains(item.Rule.With, "dummy") {
@@ -40,14 +37,18 @@ func NewScrapperPipe(store *writer.Store) *Pipe {
 			// Abort if we could not use all mandatory tags
 			ok := item.EvaluateStorePath()
 			if ok {
-				store.Write(item.StorePath)
+				if ok = store.Write(item.StorePath); ok {
+					log.Println("wrote", item.SourcePath)
+
+					rollback.Write(item)
+				}
 			} else {
 				log.Println("cannot interpolate all tags for", item.SourcePath)
 			}
 		}
 	}()
 
-	return pipe
+	return pipeline
 }
 
 func contains(s []string, e string) bool {
