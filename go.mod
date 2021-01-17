@@ -3,6 +3,7 @@ module github.com/vincent/godejunk
 go 1.14
 
 require (
+	github.com/Vonng/go-itunes-search v0.0.0-20170824055429-06c2a5b0b1fe
 	github.com/dhowden/tag v0.0.0-20201120070457-d52dcb253c63
 	github.com/djimenez/iconv-go v0.0.0-20160305225143-8960e66bd3da // indirect
 	github.com/icza/backscanner v0.0.0-20200205093934-2120fccb01f7

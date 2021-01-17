@@ -3,6 +3,8 @@ package writer
 import (
 	"fmt"
 	"io"
+	"os"
+	"strings"
 )
 
 // Tree is a faked fs
@@ -20,6 +22,31 @@ func (tree Tree) Fprint(w io.Writer, root bool, padding string) {
 		v.Fprint(w, false, padding+getPadding(root, getBoxTypeExternal(index, len(tree))))
 		index++
 	}
+}
+
+// Store a new item in summary FS
+func (self *Tree) Write(path string) bool {
+	parts := strings.Split(path, string(os.PathSeparator))
+	dir := parts[:len(parts)-1]
+	file := parts[len(parts)-1]
+
+	// place on root
+	dest := *self
+
+	// walk down the tree
+	for _, s := range dir {
+		found, ok := dest[s]
+		if !ok {
+			dest[s] = Tree{}
+			found = dest[s]
+		}
+		dest = found
+	}
+
+	_, exists := dest[file]
+	dest[file] = nil
+
+	return !exists
 }
 
 type boxType int

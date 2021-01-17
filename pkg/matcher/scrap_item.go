@@ -6,6 +6,7 @@ import "path/filepath"
 type ScrapItem struct {
 	SourcePath string
 	StorePath  string
+	StoreDir   string
 	Rule       *Rule
 	Tags       *Tags
 }
@@ -23,7 +24,9 @@ func (item *ScrapItem) EvaluateStorePath() bool {
 	// Abort if we could not use all mandatory tags
 	path, ok := TagsToPath(item.Rule.Store, *item.Tags)
 	if ok {
-		item.StorePath = filepath.Join(item.Rule.Name, path+(*item.Tags)["extension"])
+		path = filepath.Join(item.Rule.Name, path+(*item.Tags)["extension"])
+		item.StoreDir = filepath.Dir(path)
+		item.StorePath = path
 		return true
 	}
 	return false

@@ -1,3 +1,5 @@
+github.com/Vonng/go-itunes-search v0.0.0-20170824055429-06c2a5b0b1fe h1:faAu1wyLM5L+oHvJCLReIFFamNmmjG5ThtPQ52+QlxE=
+github.com/Vonng/go-itunes-search v0.0.0-20170824055429-06c2a5b0b1fe/go.mod h1:ggYVgJmeHYaePtol4z8M6mR0zKDlIbH94ub2I2QzZB4=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dhowden/tag v0.0.0-20201120070457-d52dcb253c63 h1:/u5RVRk3Nh7Zw1QQnPtUH5kzcc8JmSSRpHSlGU/zGTE=

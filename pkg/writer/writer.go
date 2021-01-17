@@ -3,7 +3,8 @@ package writer
 import (
 	"os"
 	"path/filepath"
-	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/vincent/godejunk/pkg/matcher"
 )
@@ -26,50 +27,61 @@ func NewStore(output string, dry bool) *Store {
 	}
 }
 
-// Write a new item in store
-func (store *Store) Write(item *matcher.ScrapItem) bool {
+// ImportItem into this store
+func (store *Store) ImportItem(item *matcher.ScrapItem) error {
 	store.Count++
+	log.Debug("import item ", item.SourcePath)
 
-	parts := strings.Split(item.StorePath, string(os.PathSeparator))
-	path := parts[:len(parts)-1]
-	file := parts[len(parts)-1]
-
-	// place on root
-	dest := store.Tree
-
-	// walk down the tree
-	for _, s := range path {
-		found, ok := dest[s]
-		if !ok {
-			dest[s] = Tree{}
-			found = dest[s]
-		}
-		dest = found
-	}
-
-	if _, ok := dest[file]; ok {
-		return false
+	if !store.Tree.Write(item.StorePath) {
+		return nil
 	}
 
 	if !store.Dry {
 		fullPath := filepath.Join(store.Output, item.StorePath)
 		err := os.MkdirAll(filepath.Dir(fullPath), os.ModePerm)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		err = os.Rename(item.SourcePath, fullPath)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
 
-	dest[file] = nil
-	return true
+	return nil
 }
 
-func (store *Store) Move(from string, to string) error {
+// Copy a file into this store
+func (store *Store) Copy(from string, to string) error {
 	store.Count++
+	log.Debug("copy from ", from, " to ", to)
+
+	if !store.Tree.Write(to) {
+		return nil
+	}
+
+	if !store.Dry {
+		fullPath := filepath.Join(store.Output, to)
+		err := os.MkdirAll(filepath.Dir(fullPath), os.ModePerm)
+		if err != nil {
+			return err
+		}
+
+		err = os.Rename(from, fullPath)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Restore a file to another location
+func (store *Store) Restore(from string, to string) error {
+	store.Count++
+	log.Debug("restore ", from, " to ", to)
+
 	if !store.Dry {
 		err := os.Rename(from, to)
 		if err != nil {

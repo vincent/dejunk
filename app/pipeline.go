@@ -1,7 +1,10 @@
 package app
 
 import (
+	"path/filepath"
+
 	log "github.com/sirupsen/logrus"
+	"github.com/vincent/godejunk/pkg/artwork"
 	"github.com/vincent/godejunk/pkg/matcher"
 	"github.com/vincent/godejunk/pkg/pipe"
 	"github.com/vincent/godejunk/pkg/rollback"
@@ -18,10 +21,13 @@ func NewScrapperPipe(store *writer.Store, rollback *rollback.RollbackFile) *pipe
 		Done:  make(chan int),
 	}
 
+	var artworker = artwork.NewArtworkFinder()
+
 	go func() {
 		defer close(pipeline.Done)
+		defer artworker.CleanUp()
 		for item := range pipeline.Items {
-			log.Println("scrapping", item.SourcePath)
+			log.Debug("scrapping", item.SourcePath)
 
 			// Initialize empty tags
 			item.Tags = &matcher.Tags{}
@@ -37,8 +43,34 @@ func NewScrapperPipe(store *writer.Store, rollback *rollback.RollbackFile) *pipe
 			// Abort if we could not use all mandatory tags
 			ok := item.EvaluateStorePath()
 			if ok {
-				if ok = store.Write(item); ok {
-					log.Println("wrote", item.StorePath)
+				if err := store.ImportItem(item); err == nil {
+					log.Debug("wrote", item.StorePath)
+
+					// Find cover
+					tags := *item.Tags
+					if contains(item.Rule.With, "artwork") {
+						artwork := artworker.FindCover(item.Rule.Type, []string{tags["title"]})
+						if artwork != "" {
+							if err := store.Copy(artwork, filepath.Join(item.StoreDir, "cover"+filepath.Ext(artwork))); err != nil {
+								log.Warn("cannot use artwork: ", err)
+							}
+						} else {
+							log.Debug("found no cover for ", tags["title"])
+						}
+					}
+
+					// Find background
+					if contains(item.Rule.With, "background") {
+						artwork := artworker.FindBackground(item.Rule.Type, []string{tags["title"]})
+						if artwork != "" {
+							if err := store.Copy(artwork, filepath.Join(item.StoreDir, "background"+filepath.Ext(artwork))); err != nil {
+								log.Warn("cannot use background: ", err)
+							}
+							log.Warn("found ", artwork)
+						} else {
+							log.Debug("found no background for ", tags["title"])
+						}
+					}
 
 					if rollback.Enabled {
 						rollback.Write(item)
