@@ -35,7 +35,7 @@ func (walker *FilesWalker) WalkDirectory(osDirname string, pipe *pipe.Pipe) erro
 			}
 
 			if de.IsDir() && osPathname != osDirname {
-				log.Debug("entering directory:", osPathname)
+				log.Debug("entering directory: ", osPathname)
 				return nil
 			}
 
@@ -48,7 +48,7 @@ func (walker *FilesWalker) WalkDirectory(osDirname string, pipe *pipe.Pipe) erro
 			} else if rule != nil {
 				scrapItem.Rule = rule
 				pipe.Items <- scrapItem
-				log.Debug(osPathname, "retained for scrapping by rule", rule.Name)
+				log.Debug(osPathname, " retained for scrapping by rule ", rule.Name)
 
 			} else {
 				log.Info("ignore", osPathname)
@@ -61,7 +61,7 @@ func (walker *FilesWalker) WalkDirectory(osDirname string, pipe *pipe.Pipe) erro
 			return godirwalk.SkipNode
 		},
 		PostChildrenCallback: func(osPathname string, de *godirwalk.Dirent) error {
-			log.Debug("leaving directory:", osPathname)
+			log.Debug("leaving directory: ", osPathname)
 			return nil
 		},
 	})

@@ -37,10 +37,12 @@ func NewScrapperPipe(store *writer.Store, rollback *rollback.RollbackFile) *pipe
 			// Abort if we could not use all mandatory tags
 			ok := item.EvaluateStorePath()
 			if ok {
-				if ok = store.Write(item.StorePath); ok {
-					log.Println("wrote", item.SourcePath)
+				if ok = store.Write(item); ok {
+					log.Println("wrote", item.StorePath)
 
-					rollback.Write(item)
+					if rollback.Enabled {
+						rollback.Write(item)
+					}
 				}
 			} else {
 				log.Println("cannot interpolate all tags for", item.SourcePath)

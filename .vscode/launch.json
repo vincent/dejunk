@@ -11,7 +11,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/main.go",
-            "args": ["-i ~/tmp/input", "-o /tmp/output", "-v debug"]
+            "args": ["-d", "-b /Users/vincent/tmp/output/rollback.log", "-i ~/tmp/input", "-o /tmp/output"]
         }
     ]
 }

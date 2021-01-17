@@ -15,5 +15,5 @@
 - name: TV Shows
   match: "ext(:video)is(:episode)"
   type: TVShow
-  store: ":title/Season :season/:episode - :title"
+  store: ":title/Season :season/:name"
   with: [dummy]

@@ -26,7 +26,7 @@ func (m *Matcher) FindRuleFor(item *ScrapItem) (*Rule, error) {
 			return &rule, nil
 		}
 	}
-	log.Info(item.SourcePath, "does not satisfy any rules")
+	log.Info(item.SourcePath, " does not satisfy any rules")
 	return nil, nil
 }
 

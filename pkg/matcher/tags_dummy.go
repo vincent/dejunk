@@ -20,7 +20,7 @@ func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 	var setag string
 	var ok bool
 
-	// Find season & episode from filename
+	// Find artist & album from filename
 	if item.Rule.Type == Music {
 		files, _ := ioutil.ReadDir(dirname)
 		siblings := len(files)
@@ -61,6 +61,12 @@ func (tagger *DummyTagger) For(item *ScrapItem) *Tags {
 
 	tags["title"] = title
 	tags["extension"] = extension
+
+	// TODO: check if many files with same name
+	_, ok = tags["episode"]
+	if ok {
+		tags["name"] = title + " " + setag
+	}
 
 	return &tags
 }

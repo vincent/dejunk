@@ -24,25 +24,30 @@ func Run() error {
 		os.Exit(1)
 	}
 
+	// Handle rollback command
+	if cfg.DoRollback {
+		rollback.UndoLast(cfg.RollbackFile, cfg.DryRun)
+		os.Exit(0)
+	}
+
+	if cfg.DryRun {
+		cfg.RollbackFile = ""
+	}
+	rf := rollback.NewRollbackFile(cfg.RollbackFile, cfg.Output)
+	defer rf.Close()
+
 	// Config Output
-	output := writer.NewStore()
+	output := writer.NewStore(cfg.Output, cfg.DryRun)
 
 	m := matcher.NewMatcher(cfg.RulesFile)
-	r := rollback.NewRollbackFile(cfg.RollbackFile, cfg.Output)
+	pipe := NewScrapperPipe(output, rf)
 
 	// Process each input directory
 	for _, dir := range cfg.Inputs {
-		walk := walker.NewWalker(&m)
-
 		log.Info("processing directory:", dir)
-		pipe := NewScrapperPipe(output, r)
-
-		walk.WalkDirectory(dir, pipe)
-
+		walker.NewWalker(&m).WalkDirectory(dir, pipe)
 		<-pipe.Done
 	}
-
-	r.Close()
 
 	// Show a result summary
 	output.Tree.Fprint(os.Stdout, false, "")
